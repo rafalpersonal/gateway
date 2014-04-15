@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans 
+	xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/security 
+	http://www.springframework.org/schema/security/spring-security-3.0.xsd"
+	>
+
+	<!-- 全局方法安全 -->
+	<!-- <global-method-security pre-post-annotations="enabled" /> -->
+	<http use-expressions="true" auto-config="false"
+		access-denied-page="/manager/accessdenied.r">
+		<!-- 授权所有对角色对/ 的访问 -->
+		<intercept-url pattern="/manager" access="permitAll" />
+
+		<intercept-url pattern="/commons/**" filters="none" />
+		<intercept-url pattern="/errors/**" filters="none" />
+		<intercept-url pattern="/static/**" filters="none" />
+		<intercept-url pattern="/upload/**" filters="none" />
+
+		<intercept-url pattern="/**/*.jpg" filters="none" />
+		<intercept-url pattern="/**/*.png" filters="none" />
+		<intercept-url pattern="/**/*.gif" filters="none" />
+		<intercept-url pattern="/**/*.css" filters="none" />
+		<intercept-url pattern="/**/*.js" filters="none" />
+		<intercept-url pattern="/**/*.xml" filters="none" />
+		<!-- 登录页面不需要控制 -->
+		<intercept-url pattern="/manager/login.r" filters="none" />
+		<intercept-url pattern="/manager/login_dialog.r" filters="none" />
+		<!-- rest 非manager目录不需要控制 -->
+		<intercept-url pattern="/services/**" filters="none" />
+
+		<!-- 所有页面均需要登录认证 -->
+		<intercept-url pattern="/manager/**" access="isAuthenticated()" />
+
+		<!-- login-page 登录页面 -->
+		<!-- login-processing-url 登录action -->
+		<!-- authentication-failure-url 认证失败后的页面 -->
+		<!-- default-target-url 登录成功后跳转到的页面 -->
+		<form-login login-page="/manager/login.r" login-processing-url="/manager/j_spring_security_check"
+			authentication-failure-url="/manager/login.r" default-target-url="/manager/index.r" />
+		<!-- logout-success-url:成功注销后跳转到的页面 -->
+		<logout invalidate-session="true" logout-url="/manager/logout.r"
+			logout-success-url="/manager/login.r" />
+
+		<!--
+			invalid-session-url:session过期后跳转的页面 max-sessions：同session最大允许有几个用户登录
+			error-if-maximum-exceeded="true" 禁止第二次登录 false 会让第一次登录失效
+			session-fixation-protection：防止伪造的session攻击
+		-->
+		<session-management invalid-session-url="/manager/index.r"
+			session-fixation-protection="none">
+			<concurrency-control max-sessions="10"
+				error-if-maximum-exceeded="true" />
+		</session-management>
+		<custom-filter ref="customFilterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR" />
+	</http>
+
+	<beans:bean id="customFilterSecurityInterceptor" class="com.hongxu.ripple.gateway.service.permissions.CustomFilterSecurityInterceptor">
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+		<beans:property name="accessDecisionManager" ref="customAccessDecisionManager" />
+		<beans:property name="securityMetadataSource" ref="customInvocationSecurityMetadataSourceService" />
+	</beans:bean>
+
+	<!-- 判断是否有权限 -->
+	<beans:bean id="customAccessDecisionManager"
+		class="com.hongxu.ripple.gateway.service.permissions.CustomAccessDecisionManager"/>
+
+	<!-- 配置登录验证的类 -->
+	<beans:bean id="daoAuthenticationProvider"
+		class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="customUserDetailsService" />
+	</beans:bean>
+
+	<beans:bean id="authenticationManager"
+		class="org.springframework.security.authentication.ProviderManager">
+		<beans:property name="providers">
+			<beans:list>
+				<beans:ref local="daoAuthenticationProvider" />
+			</beans:list>
+		</beans:property>
+		<beans:property name="messageSource" ref="messageSource" />
+	</beans:bean>
+    <!-- 密码加密 -->
+	<authentication-manager>
+		<authentication-provider user-service-ref="customUserDetailsService">
+			<password-encoder hash="md5" />
+		</authentication-provider>
+	</authentication-manager>
+
+	<!-- 用户的密码加密或解密 -->
+	<beans:bean id="passwordEncoder"
+		class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+	
+</beans:beans>
+

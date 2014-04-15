@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs" 
+    xmlns:sec="http://cxf.apache.org/configuration/security"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:http="http://cxf.apache.org/transports/http/configuration"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://cxf.apache.org/jaxrs 
+	http://cxf.apache.org/schemas/jaxrs.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://cxf.apache.org/configuration/security
+    http://cxf.apache.org/schemas/configuration/security.xsd
+    http://cxf.apache.org/transports/http/configuration
+    http://cxf.apache.org/schemas/configuration/http-conf.xsd" 
+	default-lazy-init="false" default-autowire="byName">
+	
+	<description>webService配置文件</description>
+	
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+  	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+  	
+	<context:component-scan base-package="com.hongxu.ripple.gateway.rest" />
+	<bean id="inMessageInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<bean id="outMessageInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>  
+
+	<jaxrs:server id="rest" address="/v1.0">
+		<jaxrs:serviceBeans>
+			<ref bean="rippleRest" />
+		</jaxrs:serviceBeans>
+
+		<jaxrs:providers>
+			<bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+		</jaxrs:providers>
+		
+		 <!-- 输入日志拦截器 -->
+		 <jaxrs:inInterceptors>
+		 	<ref bean="inMessageInterceptor" />
+		 </jaxrs:inInterceptors>
+		 <!-- 输出日志拦截器 -->
+		 <jaxrs:outInterceptors>
+		 	<ref bean="outMessageInterceptor" />
+		 </jaxrs:outInterceptors> 
+		
+	</jaxrs:server>
+</beans>

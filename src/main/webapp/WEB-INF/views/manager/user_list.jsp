@@ -1,0 +1,15 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%@ include file="/commons/taglibs.jsp" %><%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %><!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+	<meta charset="utf-8" />
+	<title><spring:message code="manager.name" /> v0.1</title>
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<meta content="" name="description" />
+	<meta content="" name="author" />
+	<%@include file="/commons/metronic_css.jsp" %>	
+</head><body class="page-header-fixed">	<jsp:include page="/manager/header.r?key=blank"/>	<!-- BEGIN CONTAINER -->	<div class="page-container row-fluid">		<!-- BEGIN SIDEBAR -->		<div class="page-sidebar nav-collapse collapse">			<jsp:include page="/manager/menu.r?key=blank" />		</div>		<!-- END SIDEBAR -->		<!-- BEGIN PAGE CONTENT-->		<div class="page-content">			<div class="portlet box red">				<div class="portlet-title">					<div class="caption">						<i class="icon-cogs"></i>User Info					</div>					<div class="tools">						<a href="javascript:;" class="collapse"></a> <a							href="${ctx }/manager/user_list.r" class="reload"></a>					</div>				</div>				<div class="portlet-body">					<div class="clearfix">						<div class="btn-group"></div>					</div>					<table class="table table-hover">						<thead>							<tr>								<th>User Id</th>								<th>Email</th>								<th>Ripple Address</th>								<th>Balance</th>								<th>Status</th>								<th>Operation</th>							</tr>						</thead>						<tbody>							<c:forEach var="d" items="${page.result }" varStatus="i">								<tr rel="${i.index }">									<td>${d.id }</td>									<td>${d.email}</td>									<td>${d.rippleAddress}</td>									<td style="color: blue;">${d.balance}</td>									<td>${d.status}</td>									<td><a class="btn red"										href="${ctx}/manager/payment.r?id=${d.id}" rel="Payment"><span>Payment</span></a>									</td>								</tr>							</c:forEach>						</tbody>					</table>				</div>			</div>			<div id="page" style="float: right;">				<a href="?pageNo=1&pageSize=${page.pageSize}" class="btn red mini">First</a>				<a href="?pageNo=${page.prePage}&pageSize=${page.pageSize}"					class="btn red mini">Pre</a> <a					href="?pageNo=${page.nextPage}&pageSize=${page.pageSize}"					class="btn red mini">Next</a> <a					href="?pageNo=${page.totalPages}&pageSize=${page.pageSize}"					class="btn red mini">Last</a>			</div>		</div>	</div>	<!-- BEGIN FOOTER -->	<jsp:include page="/manager/footer.r"/>	<!-- END FOOTER -->
+	<%@include file="/commons/metronic_js.jsp" %>	<script>		jQuery(document).ready(function() {    			   App.init();		});	</script></body>
+</html>
